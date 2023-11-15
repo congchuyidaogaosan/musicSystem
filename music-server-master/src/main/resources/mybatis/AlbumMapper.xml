@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.musicserver.mapper.AlbumMapper">
+
+
+    <resultMap id="BaseAlbumMap" type="Album">
+        <result property="albumId" column="album_id"/>
+        <result property="albumName" column="album_name"/>
+        <result property="albumSinger" column="album_singer"/>
+        <result property="albumDetails" column="album_details"/>
+        <result property="albumTime" column="album_time"/>
+        <result property="albumImg" column="album_img"/>
+        <association property="singer" javaType="Singer">
+            <id property="singerId" column="singer_id"/>
+            <result property="singerName" column="singer_name"/>
+        </association>
+    </resultMap>
+
+    <select id="queryAlbum" parameterType="int" resultMap="BaseAlbumMap">
+          select *  from album left join singer on album_singer=singer_id limit #{startIndex},#{pageSize}
+    </select>
+
+    <select id="queryAlbumById" parameterType="int" resultMap="BaseAlbumMap">
+        select *  from album left join singer on album_singer=singer_id where album_id=#{albumId}
+    </select>
+
+    <select id="queryAlbumByName" resultMap="BaseAlbumMap">
+        select *  from album left join singer on album_singer=singer_id where album_name  like CONCAT('%',#{albumName},'%')
+    </select>
+
+    <select id="albumOfSinger" parameterType="int" resultMap="BaseAlbumMap">
+        select * from album where album_singer=#{singerId} order by album_time desc
+    </select>
+
+    <select id="countOfAlbum" resultType="int">
+        select count(*)  from album
+    </select>
+
+    <insert id="addAlbum">
+        insert into album(album_name, album_singer, album_time) values (#{albumName},#{albumSinger},#{albumTime})
+    </insert>
+
+    <select id="albumOfName"  resultType="int">
+        select count(*) from album where album_name=#{albumName}
+    </select>
+
+    <select id="IdAlbumOfName"  resultMap="BaseAlbumMap" >
+        select * from album where album_name=#{albumName}
+    </select>
+
+    <update id="putAlbum" parameterType="Album">
+        update album set album_name=#{albumName}, album_singer=#{albumSinger}, album_details=#{albumDetails}, album_time=#{albumTime},album_img=#{albumImg} where album_id=#{albumId}
+    </update>
+
+    <delete id="delAlbum" parameterType="int">
+        delete from album where album_id=#{albumId}
+    </delete>
+</mapper>

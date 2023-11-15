@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.musicserver.mapper.CommentsMapper">
+
+    <resultMap id="BaseCoomMap" type="Comments">
+        <id property="commId" column="comm_id"/>
+        <result property="commDetails" column="comm_details"/>
+        <result property="commTime" column="comm_time"/>
+        <result property="commUserId" column="comm_userid"/>
+        <result property="commTargetId" column="comm_targetid"/>
+        <result property="commType" column="comm_type"/>
+        <association property="user" javaType="User">
+            <id property="userId" column="user_id"/>
+            <result property="userName" column="user_name"/>
+            <result property="userPhoto" column="user_photo"/>
+        </association>
+    </resultMap>
+
+    <select id="queryComments" parameterType="int" resultMap="BaseCoomMap">
+        select *  from comments c,user u where c.comm_userid=u.user_id and comm_targetid=#{commTargetId} and comm_type=#{commType}
+    </select>
+
+    <select id="countOfComments" parameterType="int" resultType="int">
+        select count(*) from comments where comm_type=#{commType}
+    </select>
+
+    <insert id="addComm" parameterType="Comments">
+        insert into comments (comm_details, comm_time, comm_userid, comm_targetid, comm_type) values (#{commDetails},now(),#{commUserId},#{commTargetId},#{commType})
+    </insert>
+
+    <select id="AllComm" resultMap="BaseCoomMap">
+        select * from comments
+    </select>
+
+    <delete id="delComm" parameterType="int">
+        delete from comments where comm_id=#{commId}
+    </delete>
+
+    <insert id="addLikeComm" parameterType="int">
+        insert into likecomment (likecomm_commid,likecomm_userid) values (#{commId},#{userId})
+    </insert>
+
+    <delete id="delLikeComm" parameterType="int">
+        delete from likecomment where likecomm_commid=#{commId} and likecomm_userid = #{userId}
+    </delete>
+
+
+</mapper>

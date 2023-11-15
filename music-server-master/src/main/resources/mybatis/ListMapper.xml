@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.musicserver.mapper.ListsMapper">
+
+<!--    第一个参数为startIndex,也就是查询的起始点，第二个参数为pageSize，为本次查询的个数-->
+    <select id="queryLists" resultMap="BaseListsMap" parameterType="int">
+        select *  from lists where list_type != 7 limit #{startIndex},#{pageSize}
+    </select>
+    <!--    第一个参数为startIndex,也就是查询的起始点，第二个参数为pageSize，为本次查询的个数-->
+    <select id="queryListsByType" resultMap="BaseListsMap" parameterType="int">
+        select *  from lists where list_type=#{listType} limit #{startIndex},#{pageSize}
+    </select>
+
+    <select id="countOfList" resultType="int">
+        select count(*)  from lists where list_type != 7
+    </select>
+
+
+    <select id="countOfListByType" parameterType="int" resultType="int">
+        select count(*)  from lists where list_type=#{listType}
+    </select>
+
+
+    <select id="queryListsByUserId" resultMap="BaseListsMap" parameterType="int">
+        select *  from lists where list_userid = #{userId}
+    </select>
+
+    <select id="queryListByName" resultMap="UserListMap">
+        select *  from lists left join user on list_userid=user_id where list_title  like CONCAT('%',#{listTitle},'%')
+    </select>
+
+    <resultMap id="BaseListsMap" type="Lists">
+        <id property="listId" column="list_id"/>
+        <result property="listTitle" column="list_title"/>
+        <result property="listImg" column="list_img"/>
+        <result property="listUserId" column="list_userid"/>
+        <result property="listTime" column="list_time"/>
+        <result property="listType" column="list_type"/>
+        <result property="listPlayNum" column="list_playnum"/>
+    </resultMap>
+
+    <select id="queryListById" parameterType="int" resultMap="BaseListsMap">
+        select *  from lists where list_id=#{listId}
+    </select>
+
+<!--    歌曲类型不等于7 随机10个返回-->
+    <select id="topLists" resultMap="BaseListsMap">
+        SELECT * FROM lists where list_type != 7 ORDER BY RAND() LIMIT 10;
+    </select>
+
+
+    <select id="userOfList" resultMap="UserListMap" parameterType="int">
+       select * from lists l left join user u on l.list_userid=u.user_id where l.list_id=#{listId}
+    </select>
+
+    <select id="colListsByUserId" resultMap="BaseListsMap" >
+        select * from userlist left join lists on list_id=userlist_listid where userlist_userid=#{userId}
+    </select>
+    <resultMap id="UserListMap" type="Lists">
+        <id property="listId" column="list_id"/>
+        <result property="listTitle" column="list_title"/>
+        <result property="listImg" column="list_img"/>
+        <result property="listTime" column="list_time"/>
+        <result property="listUserId" column="list_userid"/>
+        <result property="listDetails" column="list_details"/>
+        <result property="listType" column="list_type"/>
+        <result property="listPlayNum" column="list_playnum"/>
+        <association property="user" javaType="User">
+            <id property="userId" column="user_id"/>
+            <result property="userName" column="user_name" />
+            <result property="userPhoto" column="user_photo" />
+        </association>
+    </resultMap>
+
+
+    <select id="isCol" resultType="int">
+        select count(*) from userlist where userlist_listid=#{listId} and userlist_userid = #{userId}
+    </select>
+
+    <insert id="addCol">
+        insert into userlist (userlist_listid,userlist_userid) value (#{listId},#{userId})
+    </insert>
+
+    <delete id="delCol">
+        delete from userlist where userlist_listid =#{listId} and userlist_userid = #{userId}
+    </delete>
+
+    <insert id="addSongToList" parameterType="int">
+        insert into songlist (songlist_songid,songlist_listid) values(#{songId},#{listId})
+    </insert>
+
+    <delete id="delSongOfList" parameterType="int">
+        delete from songlist where songlist_songid=#{songId} and songlist_listid=#{listId}
+    </delete>
+
+    <insert id="addSongToMyList" parameterType="int">
+        insert into songlist (songlist_songid,songlist_listid) values(#{songId},(select list_id from lists where list_title="我喜欢的音乐" and list_userid=#{userId}))
+    </insert>
+
+    <delete id="delSongToMyList" parameterType="int">
+        delete from songlist where songlist_songid=#{songId} and songlist_listid=(select list_id from lists where list_title="我喜欢的音乐" and list_userid=#{userId})
+    </delete>
+
+    <insert id="addLists" parameterType="Lists" useGeneratedKeys="true" keyProperty="listId">
+        insert into lists (list_title, list_img, list_userid, list_time) values(#{listTitle},#{listImg},#{listUserId},now())
+    </insert>
+
+
+    <update id="putLists" parameterType="Lists">
+        update lists set list_title=#{listTitle},list_img=#{listImg},list_time=now(),list_type=#{listType} where list_id=#{listId}
+    </update>
+
+    <update id="putListPlayNum" parameterType="int">
+        update lists set list_playnum=#{listPlayNum} where list_id=#{listId}
+    </update>
+
+    <delete id="delLists" parameterType="int">
+        delete from lists where list_id=#{listId}
+    </delete>
+
+</mapper>

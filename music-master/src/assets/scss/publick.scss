@@ -1,0 +1,29 @@
+$themColor: rgb(39, 208, 216);
+*{
+    margin: 0;
+    padding: 0;
+}
+.addCommentBtn{
+    width: 120px;
+    line-height: 35px;
+    background-color: $themColor;
+    text-align: center;
+    color: #fff;
+    border-radius: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+.noimage{
+    display: flex;
+    align-items: center;
+    img{
+        width: 20px;
+        height: 20px;
+        margin-right: 5px;
+        cursor: pointer;
+    }
+}
+.pageBox{
+	text-align: center;
+	margin-top: 20px;
+}

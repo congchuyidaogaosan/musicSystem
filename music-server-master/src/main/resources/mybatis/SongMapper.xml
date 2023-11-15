@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.musicserver.mapper.SongMapper">
+
+    <select id="queryAllSong" resultMap="SongMap" parameterType="int">
+          select *  from song s left join album a on s.song_album=a.album_id left join singer si on s.song_singer=si.singer_id
+    </select>
+
+    <select id="countOfSongs" resultType="int">
+          select count(*)  from song
+    </select>
+
+    <select id="querySongOfList" resultMap="SongMap" parameterType="int">
+        select * from songlist sl  left join song s on s.song_id=sl.songlist_songid left join album a on s.song_album=a.album_id left join singer si on s.song_singer=si.singer_id where sl.songlist_listid=#{listId}
+    </select>
+
+    <select id="querySongOfAlbum" resultMap="SongMap" parameterType="int">
+        select * from song s left join album a on s.song_album=a.album_id left join singer si on s.song_singer=si.singer_id where s.song_album=#{albumId}
+    </select>
+
+    <select id="querySongOfSinger" resultMap="SongMap" parameterType="int">
+        select * from song s left join album a on s.song_album=a.album_id left join singer si on s.song_singer=si.singer_id where song_singer=#{singerId}
+    </select>
+
+    <select id="querySongOfUser" resultMap="SongOfUser" parameterType="int">
+        select usersong_songid from usersong where usersong_userid=#{userId}
+    </select>
+
+    <resultMap id="SongOfUser" type="Song">
+        <result property="songId" column="usersong_songid"/>
+    </resultMap>
+
+    <resultMap id="SongMap" type="Song">
+        <result property="songId" column="song_id"/>
+        <result property="songName" column="song_name"/>
+        <result property="songSinger" column="song_singer"/>
+        <result property="songFilePath" column="song_filepath"/>
+        <result property="songAlbum" column="song_album"/>
+        <result property="songLyc" column="song_lyc"/>
+        <association property="album" javaType="Album">
+            <id property="albumId" column="album_id"/>
+            <result property="albumName" column="album_name" />
+            <result property="albumImg" column="album_img" />
+        </association>
+        <association property="singer" javaType="Singer">
+            <id property="singerId" column="singer_id"/>
+            <result property="singerName" column="singer_name"/>
+        </association>
+    </resultMap>
+
+    <select id="songByName" resultType="int">
+        select count(*) from song where song_name=#{songName}
+    </select>
+
+    <select id="querySongByName" resultMap="SongMap">
+        select * from song s left join album a on s.song_album=a.album_id left join singer si on s.song_singer=si.singer_id where song_name  like CONCAT('%',#{songName},'%')
+    </select>
+
+    <select id="querySongById" resultMap="SongMap">
+          select *  from song where song_id=#{songId}
+    </select>
+
+    <insert id="addSongOfUser" parameterType="int">
+        insert into usersong(usersong_userid, usersong_songid) value (#{userId},#{songId})
+    </insert>
+
+    <delete id="delSongOfUser" parameterType="int">
+        delete from usersong where usersong_userid=#{userId} and usersong_songid=#{songId}
+    </delete>
+
+    <insert id="addSong" parameterType="Song">
+            insert into song(song_name, song_singer, song_filepath, song_album)
+            value (#{songName},#{songSinger},#{songFilePath},#{songAlbum})
+    </insert>
+
+    <update id="putSong" parameterType="Song">
+         update song set song_name=#{songName},song_singer=#{songSinger},song_filepath=#{songFilePath},song_album=#{songAlbum} where song_id=#{songId}
+    </update>
+
+    <delete id="delSong" parameterType="int">
+        delete from song where song_id=#{songId}
+    </delete>
+
+</mapper>

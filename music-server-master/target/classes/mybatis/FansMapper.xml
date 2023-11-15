@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.musicserver.mapper.FansMapper">
+
+    <select id="getMyFocus" resultMap="BaseFansMap">
+        select *  from fans
+        left join user on user_id = fans_focusid and fans_type = 1
+        left join singer on fans_focusid=singer_id and fans_type = 2
+        where fans_fansid =#{userId} ORDER BY fans_id desc
+    </select>
+
+    <select id="getMyFans" resultMap="BaseFansMap">
+        select *  from fans
+        left join user on user_id = fans_fansid
+        where fans_type = 1 and fans_focusid = #{userId} ORDER BY fans_id desc
+    </select>
+
+    <resultMap id="BaseFansMap" type="Fans">
+        <id property="fansId" column="fans_id" />
+        <result property="fansType" column="fans_type" />
+        <association property="user" javaType="User">
+            <id property="userId" column="user_id"/>
+            <result property="userName" column="user_name"/>
+            <result property="userPhoto" column="user_photo"/>
+        </association>
+        <association property="singer" javaType="Singer">
+            <id property="singerId" column="singer_id"/>
+            <result property="singerName" column="singer_name"/>
+            <result property="singerPhoto" column="singer_photo"/>
+            <result property="singerDetails" column="singer_details"/>
+        </association>
+    </resultMap>
+
+    <select id="getFocusCount" resultType="int">
+        select count(*)  from fans
+        left join user on user_id = fans_focusid and fans_type = 1
+        left join singer on fans_focusid=singer_id and fans_type = 2
+        where fans_fansid =#{userId}
+    </select>
+
+    <select id="getFansCount" resultType="int">
+        select count(*) from fans
+        left join user on user_id = fans_fansid
+        where fans_type = 1 and fans_focusid = #{userId}
+    </select>
+
+    <select id="singerIsFocus" resultType="int">
+        select count(*) from fans where fans_type = 2 and fans_fansid =#{userId} and fans_focusid =#{singerId}
+    </select>
+
+    <select id="userIsFans" resultType="int">
+        select count(*) from fans where fans_type = 1 and fans_fansid =#{userId} and fans_focusid =#{myId}
+    </select>
+
+    <select id="userIsFocus" resultType="int">
+        select count(*) from fans where fans_type = 1 and fans_fansid =#{myId} and fans_focusid =#{userId}
+    </select>
+
+    <insert id="addFocus" parameterType="int">
+        insert into fans (fans_type, fans_focusid, fans_fansid) value (#{type},#{userId},#{myId})
+    </insert>
+
+    <delete id="delFocus" parameterType="int">
+        delete from fans where fans_type =#{type} and fans_focusid = #{userId} and fans_fansid= #{myId}
+    </delete>
+
+</mapper>

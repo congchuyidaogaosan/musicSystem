@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.musicserver.mapper.SlideMapper">
+
+    <select id="showSlide" resultMap="BaseSlideMap">
+          select * from  slide
+    </select>
+
+
+    <resultMap id="BaseSlideMap" type="Slide">
+        <result property="slideId" column="slide_id" />
+        <result property="slideImg" column="slide_img" />
+        <result property="slideAlbumId" column="slide_albumid" />
+        <result property="slideValid" column="slide_valid" />
+    </resultMap>
+
+    <insert id="addSlide" parameterType="Slide">
+        insert into slide (slide_img, slide_albumid,slide_valid) values (#{slideImg},#{slideAlbumId},#{slideValid});
+    </insert>
+
+    <update id="putSlide" parameterType="Slide">
+          update slide set slide_img=#{slideImg},slide_albumid=#{slideAlbumId},slide_valid=#{slideValid} where slide_id=#{slideId}
+    </update>
+
+    <update id="delSlide" parameterType="int">
+        delete from slide where slide_id=#{slideId}
+    </update>
+</mapper>
